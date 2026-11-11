@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Tuần Hoàn Hóa Học 118 Nguyên Tố & Mã QR Interative</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'cat-reactive-nonmetal': '#2a9d8f',
+                        'cat-noble-gas': '#e76f51',
+                        'cat-alkali-metal': '#e63946',
+                        'cat-alkaline-earth': '#f4a261',
+                        'cat-metalloid': '#2a6f97',
+                        'cat-halogen': '#00b4d8',
+                        'cat-post-transition': '#48cae4',
+                        'cat-transition-metal': '#d4a373',
+                        'cat-lanthanide': '#9b5de5',
+                        'cat-actinide': '#f15bb5',
+                        'cat-unknown': '#6c757d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Periodic Table Grid Layout */
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(0, 1fr));
+            gap: 4px;
+        }
+
+        .element-card {
+            aspect-ratio: 1 / 1.1;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .element-card:hover {
+            transform: scale(1.15);
+            z-index: 30;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Category background colors */
+        .bg-cat-reactive-nonmetal { background-color: rgba(42, 157, 143, 0.25); border-color: #2a9d8f; }
+        .bg-cat-noble-gas { background-color: rgba(231, 111, 81, 0.25); border-color: #e76f51; }
+        .bg-cat-alkali-metal { background-color: rgba(230, 57, 70, 0.25); border-color: #e63946; }
+        .bg-cat-alkaline-earth { background-color: rgba(244, 162, 97, 0.25); border-color: #f4a261; }
+        .bg-cat-metalloid { background-color: rgba(42, 111, 151, 0.25); border-color: #2a6f97; }
+        .bg-cat-halogen { background-color: rgba(0, 180, 216, 0.25); border-color: #00b4d8; }
+        .bg-cat-post-transition { background-color: rgba(72, 202, 228, 0.25); border-color: #48cae4; }
+        .bg-cat-transition-metal { background-color: rgba(212, 163, 115, 0.25); border-color: #d4a373; }
+        .bg-cat-lanthanide { background-color: rgba(155, 93, 229, 0.25); border-color: #9b5de5; }
+        .bg-cat-actinide { background-color: rgba(241, 91, 181, 0.25); border-color: #f15bb5; }
+        .bg-cat-unknown { background-color: rgba(108, 117, 125, 0.25); border-color: #6c757d; }
+
+        .border-cat-reactive-nonmetal { border-color: #2a9d8f; }
+        .border-cat-noble-gas { border-color: #e76f51; }
+        .border-cat-alkali-metal { border-color: #e63946; }
+        .border-cat-alkaline-earth { border-color: #f4a261; }
+        .border-cat-metalloid { border-color: #2a6f97; }
+        .border-cat-halogen { border-color: #00b4d8; }
+        .border-cat-post-transition { border-color: #48cae4; }
+        .border-cat-transition-metal { border-color: #d4a373; }
+        .border-cat-lanthanide { border-color: #9b5de5; }
+        .border-cat-actinide { border-color: #f15bb5; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .qr-card-print { page-break-inside: avoid; break-inside: avoid; border: 1px solid #ccc !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-slate-900 text-slate-100">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-indigo-600 rounded-lg text-white font-bold text-xl">
+                    <i class="fa-solid fa-atom"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">Bảng Tuần Hoàn Hóa Học 118 Nguyên Tố</h1>
+                    <p class="text-xs text-slate-400">Tích hợp Trình tạo & Xuất mã QR thông minh</p>
+                </div>
+            </div>
+
+            <!-- Tab Selector -->
+            <div class="flex bg-slate-900/60 p-1 rounded-xl border border-slate-700">
+                <button id="tab-table-btn" onclick="switchTab('table')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm">
+                    <i class="fa-solid fa-table-cells mr-1.5"></i> Bảng Tuần Hoàn
+                </button>
+                <button id="tab-qr-btn" onclick="switchTab('qr')" class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-qrcode mr-1.5"></i> Quản lý 118 Mã QR
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- TAB 1: INTERACTIVE PERIODIC TABLE -->
+        <section id="tab-table" class="space-y-6">
+            
+            <!-- Filter & Search Controls -->
+            <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60 flex flex-col md:flex-row gap-4 items-center justify-between">
+                
+                <!-- Search Box -->
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" placeholder="Tìm theo tên, ký hiệu, số Z..." 
+                        class="w-full pl-10 pr-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500">
+                </div>
+
+                <!-- Group Filters -->
+                <div class="flex flex-wrap gap-1.5 items-center justify-center md:justify-end text-xs">
+                    <button onclick="filterCategory('all')" class="cat-filter-btn active bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg border border-slate-600 font-medium transition">Tất cả</button>
+                    <button onclick="filterCategory('alkali-metal')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-red-400 border border-red-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Kim loại kiềm</button>
+                    <button onclick="filterCategory('alkaline-earth')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-orange-400 border border-orange-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Kiềm thổ</button>
+                    <button onclick="filterCategory('transition-metal')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Chuyển tiếp</button>
+                    <button onclick="filterCategory('metalloid')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Á kim</button>
+                    <button onclick="filterCategory('reactive-nonmetal')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Phi kim</button>
+                    <button onclick="filterCategory('halogen')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Halogen</button>
+                    <button onclick="filterCategory('noble-gas')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-rose-400 border border-rose-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Khí hiếm</button>
+                    <button onclick="filterCategory('lanthanide')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-purple-400 border border-purple-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Họ Lanthan</button>
+                    <button onclick="filterCategory('actinide')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-pink-400 border border-pink-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Họ Actin</button>
+                </div>
+            </div>
+
+            <!-- Periodic Table Display Wrapper -->
+            <div class="overflow-x-auto pb-4">
+                <div class="min-w-[1000px]">
+                    <!-- Main Periodic Grid -->
+                    <div id="periodic-table-grid" class="periodic-table mb-4">
+                        <!-- Standard 1-7 periods dynamically inserted here -->
+                    </div>
+
+                    <!-- Lanthanides & Actinides Separate Blocks -->
+                    <div class="mt-6 pl-[11.11%] space-y-1">
+                        <div class="flex items-center mb-1">
+                            <span class="text-xs text-purple-400 font-semibold w-24">Họ Lanthan (*):</span>
+                            <div id="lanthanides-row" class="grid grid-cols-15 gap-1 flex-1"></div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-xs text-pink-400 font-semibold w-24">Họ Actin (**):</span>
+                            <div id="actinides-row" class="grid grid-cols-15 gap-1 flex-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend Section -->
+            <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Chú thích phân loại nhóm nguyên tố</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2 text-xs">
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-alkali-metal border border-red-500 inline-block"></span>Kim loại kiềm</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-alkaline-earth border border-orange-500 inline-block"></span>Kim loại kiềm thổ</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-transition-metal border border-amber-500 inline-block"></span>Kim loại chuyển tiếp</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-post-transition border border-teal-500 inline-block"></span>Kim loại yếu</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-metalloid border border-sky-500 inline-block"></span>Á kim</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-reactive-nonmetal border border-emerald-500 inline-block"></span>Phi kim đa nguyên tử</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-halogen border border-cyan-500 inline-block"></span>Halogen</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-noble-gas border border-rose-500 inline-block"></span>Khí hiếm</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-lanthanide border border-purple-500 inline-block"></span>Họ Lanthan</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-actinide border border-pink-500 inline-block"></span>Họ Actin</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-unknown border border-slate-500 inline-block"></span>Tổng hợp / Chưa rõ</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: BULK QR CODE MANAGER & EXPORT -->
+        <section id="tab-qr" class="hidden space-y-6">
+            
+            <!-- Controls Bar -->
+            <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60 flex flex-col md:flex-row gap-4 justify-between items-center no-print">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <input type="text" id="qr-search-input" placeholder="Tìm mã QR theo tên hoặc ký hiệu..." 
+                        class="px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500 w-full md:w-72">
+                    <span id="qr-count-badge" class="text-xs bg-indigo-900/60 border border-indigo-700 text-indigo-300 font-medium px-3 py-1.5 rounded-xl whitespace-nowrap">
+                        118 / 118 Nguyên Tố
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button onclick="window.print()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> In Bộ Thẻ QR
+                    </button>
+                    <button onclick="downloadAllQRCodes()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                        <i class="fa-solid fa-file-arrow-down"></i> Tải Tất Cả 118 Mã QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Print Header Banner (Only visible in Print Mode) -->
+            <div class="hidden print-only text-center mb-6 border-b pb-4">
+                <h1 class="text-2xl font-bold text-black">BỘ MÃ QR 118 NGUYÊN TỐ HÓA HỌC</h1>
+                <p class="text-sm text-gray-600">Quét mã để truy cập chi tiết thông tin hóa học & ứng dụng thực tế</p>
+            </div>
+
+            <!-- QR Grid Grid -->
+            <div id="qr-gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- QR Cards generated dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800/40 border-t border-slate-800 py-4 mt-8 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            Ứng dụng Bảng tuần hoàn Hóa học tương tác 118 Nguyên Tố & Mã QR • Hỗ trợ học tập và nghiên cứu Hóa học.
+        </div>
+    </footer>
+
+    <!-- ELEMENT DETAIL MODAL WITH QR CODE GENERATOR -->
+    <div id="element-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative my-8 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start border-b border-slate-800 pb-6">
+                <!-- Large Symbol Box -->
+                <div id="modal-symbol-box" class="w-28 h-32 rounded-2xl border-2 flex flex-col justify-between p-3 text-center bg-slate-800/50 shrink-0">
+                    <span id="modal-z" class="text-left font-bold text-xs opacity-80">1</span>
+                    <div>
+                        <div id="modal-symbol" class="text-4xl font-extrabold tracking-tight">H</div>
+                        <div id="modal-en-name" class="text-[10px] font-medium opacity-80 truncate">Hydrogen</div>
+                    </div>
+                    <span id="modal-mass" class="text-right text-[11px] font-mono opacity-80">1.008</span>
+                </div>
+
+                <!-- Title & Basic Quick Stats -->
+                <div class="flex-grow text-center sm:text-left">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                        <span id="modal-category" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Phi kim</span>
+                        <span id="modal-phase" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300">Khí</span>
+                    </div>
+                    <h2 id="modal-vi-name" class="text-2xl font-bold text-white mb-1">Hiđrô</h2>
+                    <p id="modal-config" class="text-xs font-mono text-indigo-400 mb-3">1s¹</p>
+
+                    <!-- Group & Period Badges -->
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 block text-[10px]">Nhóm</span>
+                            <span id="modal-group" class="font-bold text-slate-200">1 (IA)</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 block text-[10px]">Chu kỳ</span>
+                            <span id="modal-period" class="font-bold text-slate-200">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Grid: Details & QR Code -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                
+                <!-- Left 2 Columns: Properties & Applications -->
+                <div class="md:col-span-2 space-y-4 text-xs">
+                    
+                    <!-- Physical Properties -->
+                    <div class="bg-slate-800/40 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-slate-300 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-flask text-indigo-400"></i> Thông số Lý - Hóa
+                        </h4>
+                        <div class="grid grid-cols-2 gap-2 text-slate-300">
+                            <div><span class="text-slate-500">Độ âm điện:</span> <span id="modal-electronegativity" class="font-mono font-medium">2.20</span></div>
+                            <div><span class="text-slate-500">Bán kính nguyên tử:</span> <span id="modal-radius" class="font-mono font-medium">53 pm</span></div>
+                            <div><span class="text-slate-500">Nhiệt độ nóng chảy:</span> <span id="modal-melt" class="font-mono font-medium">-259.16 °C</span></div>
+                            <div><span class="text-slate-500">Nhiệt độ sôi:</span> <span id="modal-boil" class="font-mono font-medium">-252.87 °C</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Summary & Applications -->
+                    <div class="space-y-3">
+                        <div>
+                            <h4 class="font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-info text-sky-400"></i> Đặc tính & Tổng quan:
+                            </h4>
+                            <p id="modal-summary" class="text-slate-400 leading-relaxed">Là nguyên tố nhẹ nhất và phổ biến nhất trong vũ trụ...</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-300 mb-1 flex items-center gap-1.5">
+                                <i class="fa-solid fa-lightbulb text-amber-400"></i> Ứng dụng thực tế:
+                            </h4>
+                            <p id="modal-application" class="text-slate-400 leading-relaxed">Sản xuất amoniac, nhiên liệu tên lửa, hydro hóa dầu ăn...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive QR Code Generator -->
+                <div class="flex flex-col items-center justify-between bg-slate-800/50 p-4 rounded-2xl border border-slate-700/60 text-center">
+                    <div class="space-y-2 w-full">
+                        <h4 class="font-bold text-slate-200 text-xs flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-qrcode text-indigo-400"></i> Mã QR Nguyên Tố
+                        </h4>
+                        <p class="text-[11px] text-slate-400">Quét để truy cập nhanh link thông tin</p>
+                        
+                        <!-- QR Code Canvas Container -->
+                        <div class="bg-white p-3 rounded-xl shadow-inner flex items-center justify-center mx-auto my-2 w-36 h-36 relative" id="modal-qrcode-box">
+                            <!-- QR JS will inject image/canvas here -->
+                        </div>
+                        <p id="modal-qr-link-text" class="text-[10px] text-slate-500 font-mono truncate max-w-[150px] mx-auto"></p>
+                    </div>
+
+                    <button onclick="downloadSingleQR()" class="mt-3 w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-medium text-xs transition flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30">
+                        <i class="fa-solid fa-download"></i> Tải Mã QR (PNG)
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        // Data Category Display Text Mapping
+        const CATEGORY_MAP = {
+            'reactive-nonmetal': { name: 'Phi kim', colorClass: 'bg-cat-reactive-nonmetal', borderClass: 'border-cat-reactive-nonmetal' },
+            'noble-gas': { name: 'Khí hiếm', colorClass: 'bg-cat-noble-gas', borderClass: 'border-cat-noble-gas' },
+            'alkali-metal': { name: 'Kim loại kiềm', colorClass: 'bg-cat-alkali-metal', borderClass: 'border-cat-alkali-metal' },
+            'alkaline-earth': { name: 'Kiềm thổ', colorClass: 'bg-cat-alkaline-earth', borderClass: 'border-cat-alkaline-earth' },
+            'metalloid': { name: 'Á kim', colorClass: 'bg-cat-metalloid', borderClass: 'border-cat-metalloid' },
+            'halogen': { name: 'Halogen', colorClass: 'bg-cat-halogen', borderClass: 'border-cat-halogen' },
+            'post-transition': { name: 'Kim loại yếu', colorClass: 'bg-cat-post-transition', borderClass: 'border-cat-post-transition' },
+            'transition-metal': { name: 'Chuyển tiếp', colorClass: 'bg-cat-transition-metal', borderClass: 'border-cat-transition-metal' },
+            'lanthanide': { name: 'Họ Lanthan', colorClass: 'bg-cat-lanthanide', borderClass: 'border-cat-lanthanide' },
+            'actinide': { name: 'Họ Actin', colorClass: 'bg-cat-actinide', borderClass: 'border-cat-actinide' },
+            'unknown': { name: 'Chưa xác định', colorClass: 'bg-cat-unknown', borderClass: 'border-cat-unknown' }
+        };
+
+        // Complete Dataset of 118 Chemical Elements
+        const elementsData = [
+            { z: 1, symbol: "H", nameEn: "Hydrogen", nameVi: "Hiđrô", mass: "1.008", category: "reactive-nonmetal", group: 1, period: 1, phase: "Khí", config: "1s¹", electronegativity: 2.20, radius: 53, melt: -259.16, boil: -252.87, summary: "Nguyên tố phổ biến nhất trong vũ trụ, chiếm khoảng 75% khối lượng đơn chất.", app: "Nhiên liệu sạch, sản xuất Amoniac (NH3), hydro hóa dầu thực vật." },
+            { z: 2, symbol: "He", nameEn: "Helium", nameVi: "Heli", mass: "4.0026", category: "noble-gas", group: 18, period: 1, phase: "Khí", config: "1s²", electronegativity: "-", radius: 31, melt: -272.2, boil: -268.93, summary: "Khí trơ nhẹ thứ hai, không màu, không mùi, không cháy.", app: "Bơm khí cầu, làm mát máy chụp cộng hưởng từ (MRI)." },
+            { z: 3, symbol: "Li", nameEn: "Lithium", nameVi: "Liti", mass: "6.94", category: "alkali-metal", group: 1, period: 2, phase: "Rắn", config: "[He] 2s¹", electronegativity: 0.98, radius: 167, melt: 180.5, boil: 1342, summary: "Kim loại kiềm nhẹ nhất, có mật độ thấp nhất trong các nguyên tố rắn.", app: "Pin Lithium-ion cho điện thoại, xe điện, hợp kim hàng không." },
+            { z: 4, symbol: "Be", nameEn: "Beryllium", nameVi: "Beri", mass: "9.0122", category: "alkaline-earth", group: 2, period: 2, phase: "Rắn", config: "[He] 2s²", electronegativity: 1.57, radius: 112, melt: 1287, boil: 2469, summary: "Kim loại cứng, màu xám xịt, có điểm nóng chảy cao.", app: "Linh kiện vệ tinh, cửa sổ tia X, hợp kim độ bền cao." },
+            { z: 5, symbol: "B", nameEn: "Boron", nameVi: "Bo", mass: "10.81", category: "metalloid", group: 13, period: 2, phase: "Rắn", config: "[He] 2s² 2p¹", electronegativity: 2.04, radius: 87, melt: 2076, boil: 3927, summary: "Á kim cứng, dẫn điện kém ở nhiệt độ phòng.", app: "Thủy tinh borosilicat (Pyrex), chất bán dẫn, sợi carbon." },
+            { z: 6, symbol: "C", nameEn: "Carbon", nameVi: "Cacbon", mass: "12.011", category: "reactive-nonmetal", group: 14, period: 2, phase: "Rắn", config: "[He] 2s² 2p²", electronegativity: 2.55, radius: 67, melt: 3550, boil: 4027, summary: "Cơ sở của mọi sự sống hữu cơ, có các dạng thù hình như kim cương, graphite.", app: "Đồ trang sức, lõi bút chì, sợi carbon composite, nhiên liệu hóa thạch." },
+            { z: 7, symbol: "N", nameEn: "Nitrogen", nameVi: "Nitơ", mass: "14.007", category: "reactive-nonmetal", group: 15, period: 2, phase: "Khí", config: "[He] 2s² 2p³", electronegativity: 3.04, radius: 56, melt: -210.0, boil: -195.79, summary: "Chiếm khoảng 78% thể tích khí quyển Trái Đất.", app: "Sản xuất phân bón hóa học, bảo quản thực phẩm, Nitơ lỏng làm lạnh." },
+            { z: 8, symbol: "O", nameEn: "Oxygen", nameVi: "Oxy", mass: "15.999", category: "reactive-nonmetal", group: 16, period: 2, phase: "Khí", config: "[He] 2s² 2p⁴", electronegativity: 3.44, radius: 48, melt: -218.79, boil: -182.96, summary: "Nguyên tố duy trì sự hô hấp của sinh vật và quá trình cháy.", app: "Y tế (bình oxy), hàn cắt kim loại, sản xuất thép." },
+            { z: 9, symbol: "F", nameEn: "Fluorine", nameVi: "Clo/Flo (Flo)", mass: "18.998", category: "halogen", group: 17, period: 2, phase: "Khí", config: "[He] 2s² 2p⁵", electronegativity: 3.98, radius: 42, melt: -219.67, boil: -188.11, summary: "Nguyên tố có độ âm điện mạnh nhất, phản ứng cực kỳ mãnh liệt.", app: "Kem đánh răng (fluoride), chảo chống dính Teflon, khí làm lạnh." },
+            { z: 10, symbol: "Ne", nameEn: "Neon", nameVi: "Neon", mass: "20.180", category: "noble-gas", group: 18, period: 2, phase: "Khí", config: "[He] 2s² 2p⁶", electronegativity: "-", radius: 38, melt: -248.59, boil: -246.05, summary: "Khí hiếm phát ra ánh sáng đỏ-cam rực rỡ khi có dòng điện chạy qua.", app: "Đèn quảng cáo Neon, laser tử ngoại, chất làm lạnh." },
+            { z: 11, symbol: "Na", nameEn: "Sodium", nameVi: "Natri", mass: "22.990", category: "alkali-metal", group: 1, period: 3, phase: "Rắn", config: "[Ne] 3s¹", electronegativity: 0.93, radius: 190, melt: 97.79, boil: 882.9, summary: "Kim loại kiềm mềm, phản ứng dữ dội với nước sinh ra khí Hydro.", app: "Muối ăn (NaCl), xà phòng, đèn đường hơi natri." },
+            { z: 12, symbol: "Mg", nameEn: "Magnesium", nameVi: "Magie", mass: "24.305", category: "alkaline-earth", group: 2, period: 3, phase: "Rắn", config: "[Ne] 3s²", electronegativity: 1.31, radius: 145, melt: 650, boil: 1090, summary: "Kim loại nhẹ, cháy trong không khí tạo ra ánh sáng trắng chói lói.", app: "Hợp kim nhôm-magie chế tạo ô tô, máy bay, pháo hoa." },
+            { z: 13, symbol: "Al", nameEn: "Aluminium", nameVi: "Nhôm", mass: "26.982", category: "post-transition", group: 13, period: 3, phase: "Rắn", config: "[Ne] 3s² 3p¹", electronegativity: 1.61, radius: 118, melt: 660.32, boil: 2470, summary: "Kim loại phổ biến nhất trong vỏ Trái Đất, nhẹ và chống ăn mòn tốt.", app: "Cửa nhôm, lon nước, vỏ máy bay, dây dẫn điện." },
+            { z: 14, symbol: "Si", nameEn: "Silicon", nameVi: "Silic", mass: "28.085", category: "metalloid", group: 14, period: 3, phase: "Rắn", config: "[Ne] 3s² 3p²", electronegativity: 1.90, radius: 111, melt: 1414, boil: 3265, summary: "Á kim cấu tạo nên cát và là nền tảng của ngành điện tử hiện đại.", app: "Vi chip máy tính, pin mặt trời, thủy tinh, chất dẻo silicone." },
+            { z: 15, symbol: "P", nameEn: "Phosphorus", nameVi: "Photpho", mass: "30.974", category: "reactive-nonmetal", group: 15, period: 3, phase: "Rắn", config: "[Ne] 3s² 3p³", electronegativity: 2.19, radius: 98, melt: 44.15, boil: 280.5, summary: "Tồn tại dạng Photpho đỏ và trắng, thành phần thiết yếu của ADN.", app: "Sản xuất diêm, phân bón phosphat, thuốc trừ sâu." },
+            { z: 16, symbol: "S", nameEn: "Sulfur", nameVi: "Lưu huỳnh", mass: "32.06", category: "reactive-nonmetal", group: 16, period: 3, phase: "Rắn", config: "[Ne] 3s² 3p⁴", electronegativity: 2.58, radius: 88, melt: 115.21, boil: 444.6, summary: "Phi kim màu vàng chanh, dễ cháy tạo khí SO2 có mùi hắc.", app: "Sản xuất Axit Sulfuric (H2SO4), lưu hóa cao su, thuốc súng." },
+            { z: 17, symbol: "Cl", nameEn: "Chlorine", nameVi: "Clo", mass: "35.45", category: "halogen", group: 17, period: 3, phase: "Khí", config: "[Ne] 3s² 3p⁵", electronegativity: 3.16, radius: 79, melt: -101.5, boil: -34.04, summary: "Khí màu vàng lục, độc, tính oxy hóa rất mạnh.", app: "Kử trùng nước bể bơi, sản xuất nhựa PVC, chất tẩy rửa." },
+            { z: 18, symbol: "Ar", nameEn: "Argon", nameVi: "Argon", mass: "39.948", category: "noble-gas", group: 18, period: 3, phase: "Khí", config: "[Ne] 3s² 3p⁶", electronegativity: "-", radius: 71, melt: -189.34, boil: -185.85, summary: "Khí hiếm phổ biến nhất trên Trái Đất, chiếm 0.93% khí quyển.", app: "Khí bảo vệ trong hàn kim loại, bơm trong bóng đèn sợi đốt." },
+            { z: 19, symbol: "K", nameEn: "Potassium", nameVi: "Kali", mass: "39.098", category: "alkali-metal", group: 1, period: 4, phase: "Rắn", config: "[Ar] 4s¹", electronegativity: 0.82, radius: 243, melt: 63.5, boil: 759, summary: "Kim loại kiềm rất mềm, phản ứng mãnh liệt với nước.", app: "Phân bón NPK, khoáng chất thiết yếu cho hệ thần kinh con người." },
+            { z: 20, symbol: "Ca", nameEn: "Calcium", nameVi: "Canxi", mass: "40.078", category: "alkaline-earth", group: 2, period: 4, phase: "Rắn", config: "[Ar] 4s²", electronegativity: 1.00, radius: 194, melt: 842, boil: 1484, summary: "Nguyên tố khoáng chất cấu tạo nên xương và răng.", app: "Sản xuất xi măng, vôi sống, hợp kim luyện kim." },
+            { z: 21, symbol: "Sc", nameEn: "Scandium", nameVi: "Scandium", mass: "44.956", category: "transition-metal", group: 3, period: 4, phase: "Rắn", config: "[Ar] 3d¹ 4s²", electronegativity: 1.36, radius: 184, melt: 1541, boil: 2836, summary: "Kim loại chuyển tiếp nhẹ, có màu bạc sáng.", app: "Gậy đánh golf, khung xe đạp cao cấp, đèn dải rộng." },
+            { z: 22, symbol: "Ti", nameEn: "Titanium", nameVi: "Titan", mass: "47.867", category: "transition-metal", group: 4, period: 4, phase: "Rắn", config: "[Ar] 3d² 4s²", electronegativity: 1.54, radius: 176, melt: 1668, boil: 3287, summary: "Cực kỳ bền, nhẹ và tương thích sinh học tốt.", app: "Khung máy bay, khớp nhân tạo y tế, sơn phủ TiO2." },
+            { z: 23, symbol: "V", nameEn: "Vanadium", nameVi: "Vanadi", mass: "50.942", category: "transition-metal", group: 5, period: 4, phase: "Rắn", config: "[Ar] 3d³ 4s²", electronegativity: 1.63, radius: 171, melt: 1910, boil: 3407, summary: "Kim loại chuyển tiếp cứng, màu xám bạc.", app: "Phụ gia gia cường thép, dụng cụ cờ-lê, lò xo siêu bền." },
+            { z: 24, symbol: "Cr", nameEn: "Chromium", nameVi: "Crom", mass: "51.996", category: "transition-metal", group: 6, period: 4, phase: "Rắn", config: "[Ar] 3d⁵ 4s¹", electronegativity: 1.66, radius: 166, melt: 1907, boil: 2671, summary: "Kim loại cứng nhất trong các kim loại, sáng bóng.", app: "Mạ crom chống gỉ, thép không gỉ (Inox)." },
+            { z: 25, symbol: "Mn", nameEn: "Manganese", nameVi: "Mangan", mass: "54.938", category: "transition-metal", group: 7, period: 4, phase: "Rắn", config: "[Ar] 3d⁵ 4s²", electronegativity: 1.55, radius: 161, melt: 1246, boil: 2061, summary: "Nguyên tố quan trọng trong quá trình sản xuất thép.", app: "Hợp kim thép khử oxy, pin khô Manganese." },
+            { z: 26, symbol: "Fe", nameEn: "Iron", nameVi: "Sắt", mass: "55.845", category: "transition-metal", group: 8, period: 4, phase: "Rắn", config: "[Ar] 3d⁶ 4s²", electronegativity: 1.83, radius: 156, melt: 1538, boil: 2862, summary: "Kim loại phổ biến nhất trên Trái Đất theo khối lượng.", app: "Sản xuất thép, xây dựng cầu đường, vận chuyển oxy trong máu." },
+            { z: 27, symbol: "Co", nameEn: "Cobalt", nameVi: "Coban", mass: "58.933", category: "transition-metal", group: 9, period: 4, phase: "Rắn", config: "[Ar] 3d⁷ 4s²", electronegativity: 1.88, radius: 152, melt: 1495, boil: 2927, summary: "Kim loại từ tính có màu xám bạc ánh xanh.", app: "Nam châm vĩnh cửu, cực catot pin Lithium, màu nhuộm gốm sứ." },
+            { z: 28, symbol: "Ni", nameEn: "Nickel", nameVi: "Niken", mass: "58.693", category: "transition-metal", group: 10, period: 4, phase: "Rắn", config: "[Ar] 3d⁸ 4s²", electronegativity: 1.91, radius: 149, melt: 1455, boil: 2730, summary: "Chống ăn mòn tốt, màu bạc bóng sáng.", app: "Tiền xu, mạ bảo vệ kim loại, pin sạc NiMH." },
+            { z: 29, symbol: "Cu", nameEn: "Copper", nameVi: "Đồng", mass: "63.546", category: "transition-metal", group: 11, period: 4, phase: "Rắn", config: "[Ar] 3d¹⁰ 4s¹", electronegativity: 1.90, radius: 145, melt: 1084.62, boil: 2562, summary: "Dẫn điện và dẫn nhiệt cực tốt, màu đỏ cam đặc trưng.", app: "Dây điện, ống tản nhiệt, đồng thau/đồng đúc." },
+            { z: 30, symbol: "Zn", nameEn: "Zinc", nameVi: "Kẽm", mass: "65.38", category: "transition-metal", group: 12, period: 4, phase: "Rắn", config: "[Ar] 3d¹⁰ 4s²", electronegativity: 1.65, radius: 142, melt: 419.53, boil: 907, summary: "Kim loại màu xám xanh, giòn ở nhiệt độ phòng.", app: "Tôn mạ kẽm chống gỉ, đúc hợp kim, viên bổ sung dinh dưỡng." }
+        ];
+
+        // Generate remaining elements (31 to 118) programmatically to ensure complete 118 elements dataset
+        const fullElementsList = [...elementsData];
+        
+        const extraNames = [
+            ["Ga", "Gallium", "Gali", "69.723", "post-transition", 13, 4], ["Ge", "Germanium", "Gecmani", "72.630", "metalloid", 14, 4],
+            ["As", "Arsenic", "Asen", "74.922", "metalloid", 15, 4], ["Se", "Selenium", "Selen", "78.971", "reactive-nonmetal", 16, 4],
+            ["Br", "Bromine", "Brom", "79.904", "halogen", 17, 4], ["Kr", "Krypton", "Kripton", "83.798", "noble-gas", 18, 4],
+            ["Rb", "Rubidium", "Rubidi", "85.468", "alkali-metal", 1, 5], ["Sr", "Strontium", "Stronti", "87.62", "alkaline-earth", 2, 5],
+            ["Y", "Yttrium", "Ytri", "88.906", "transition-metal", 3, 5], ["Zr", "Zirconium", "Zirconi", "91.224", "transition-metal", 4, 5],
+            ["Nb", "Niobium", "Niobi", "92.906", "transition-metal", 5, 5], ["Mo", "Molybdenum", "Molibden", "95.95", "transition-metal", 6, 5],
+            ["Tc", "Technetium", "Tecneti", "98", "transition-metal", 7, 5], ["Ru", "Ruthenium", "Ruteni", "101.07", "transition-metal", 8, 5],
+            ["Rh", "Rhodium", "Rodi", "102.91", "transition-metal", 9, 5], ["Pd", "Palladium", "Paladi", "106.42", "transition-metal", 10, 5],
+            ["Ag", "Silver", "Bạc", "107.87", "transition-metal", 11, 5], ["Cd", "Cadmium", "Cadimi", "112.41", "transition-metal", 12, 5],
+            ["In", "Indium", "Indi", "114.82", "post-transition", 13, 5], ["Sn", "Tin", "Thiếc", "118.71", "post-transition", 14, 5],
+            ["Sb", "Antimony", "Antimon", "121.76", "metalloid", 15, 5], ["Te", "Tellurium", "Telua", "127.60", "metalloid", 16, 5],
+            ["I", "Iodine", "Iốt", "126.90", "halogen", 17, 5], ["Xe", "Xenon", "Xenon", "131.29", "noble-gas", 18, 5],
+            ["Cs", "Caesium", "Cesi", "132.91", "alkali-metal", 1, 6], ["Ba", "Barium", "Bari", "137.33", "alkaline-earth", 2, 6],
+            
+            // Lanthanides (57-71)
+            ["La", "Lanthanum", "Lantan", "138.91", "lanthanide", 3, 6], ["Ce", "Cerium", "Ceri", "140.12", "lanthanide", 3, 6],
+            ["Pr", "Praseodymium", "Praseodim", "140.91", "lanthanide", 3, 6], ["Nd", "Neodymium", "Neodim", "144.24", "lanthanide", 3, 6],
+            ["Pm", "Promethium", "Prometi", "145", "lanthanide", 3, 6], ["Sm", "Samarium", "Samari", "150.36", "lanthanide", 3, 6],
+            ["Eu", "Europium", "Europi", "151.96", "lanthanide", 3, 6], ["Gd", "Gadolinium", "Gadolini", "157.25", "lanthanide", 3, 6],
+            ["Tb", "Terbium", "Terbi", "158.93", "lanthanide", 3, 6], ["Dy", "Dysprosium", "Disprosi", "162.50", "lanthanide", 3, 6],
+            ["Ho", "Holmium", "Holmi", "164.93", "lanthanide", 3, 6], ["Er", "Erbium", "Erbi", "167.26", "lanthanide", 3, 6],
+            ["Tm", "Thulium", "Thuli", "168.93", "lanthanide", 3, 6], ["Yb", "Ytterbium", "Yterbi", "173.05", "lanthanide", 3, 6],
+            ["Lu", "Lutetium", "Luteti", "174.97", "lanthanide", 3, 6],
+
+            ["Hf", "Hafnium", "Hafni", "178.49", "transition-metal", 4, 6], ["Ta", "Tantalum", "Tantan", "180.95", "transition-metal", 5, 6],
+            ["W", "Tungsten", "Volfram", "183.84", "transition-metal", 6, 6], ["Re", "Rhenium", "Reni", "186.21", "transition-metal", 7, 6],
+            ["Os", "Osmium", "Osmi", "190.23", "transition-metal", 8, 6], ["Ir", "Iridium", "Iridi", "192.22", "transition-metal", 9, 6],
+            ["Pt", "Platinum", "Bạch kim", "195.08", "transition-metal", 10, 6], ["Au", "Gold", "Vàng", "196.97", "transition-metal", 11, 6],
+            ["Hg", "Mercury", "Thủy ngân", "200.59", "transition-metal", 12, 6], ["Tl", "Thallium", "Tali", "204.38", "post-transition", 13, 6],
+            ["Pb", "Lead", "Chì", "207.2", "post-transition", 14, 6], ["Bi", "Bismuth", "Bismut", "208.98", "post-transition", 15, 6],
+            ["Po", "Polonium", "Poloni", "209", "post-transition", 16, 6], ["At", "Astatine", "Astatin", "210", "halogen", 17, 6],
+            ["Rn", "Radon", "Radon", "222", "noble-gas", 18, 6],
+
+            ["Fr", "Francium", "Franci", "223", "alkali-metal", 1, 7], ["Ra", "Radium", "Radi", "226", "alkaline-earth", 2, 7],
+
+            // Actinides (89-103)
+            ["Ac", "Actinium", "Actini", "227", "actinide", 3, 7], ["Th", "Thorium", "Thori", "232.04", "actinide", 3, 7],
+            ["Pa", "Protactinium", "Protactini", "231.04", "actinide", 3, 7], ["U", "Uranium", "Urani", "238.03", "actinide", 3, 7],
+            ["Np", "Neptunium", "Neptuni", "237", "actinide", 3, 7], ["Pu", "Plutonium", "Plutoni", "244", "actinide", 3, 7],
+            ["Am", "Americium", "Americi", "243", "actinide", 3, 7], ["Cm", "Curium", "Curi", "247", "actinide", 3, 7],
+            ["Bk", "Berkelium", "Berkeli", "247", "actinide", 3, 7], ["Cf", "Californium", "Californi", "251", "actinide", 3, 7],
+            ["Es", "Einsteinium", "Ensteini", "252", "actinide", 3, 7], ["Fm", "Fermium", "Fermi", "257", "actinide", 3, 7],
+            ["Md", "Mendelevium", "Mendelevi", "258", "actinide", 3, 7], ["No", "Nobelium", "Nobeli", "259", "actinide", 3, 7],
+            ["Lr", "Lawrencium", "Larensi", "266", "actinide", 3, 7],
+
+            ["Rf", "Rutherfordium", "Rơtơfori", "267", "transition-metal", 4, 7], ["Db", "Dubnium", "Dubni", "268", "transition-metal", 5, 7],
+            ["Sg", "Seaborgium", "Xiborgi", "269", "transition-metal", 6, 7], ["Bh", "Bohrium", "Bori", "270", "transition-metal", 7, 7],
+            ["Hs", "Hassium", "Hasi", "270", "transition-metal", 8, 7], ["Mt", "Meitnerium", "Maitneri", "278", "unknown", 9, 7],
+            ["Ds", "Darmstadtium", "Darmstadti", "281", "unknown", 10, 7], ["Rg", "Roentgenium", "Rơnghen", "282", "unknown", 11, 7],
+            ["Cn", "Copernicium", "Copepnici", "285", "transition-metal", 12, 7], ["Nh", "Nihonium", "Nihoni", "286", "unknown", 13, 7],
+            ["Fl", "Flerovium", "Flerovi", "289", "post-transition", 14, 7], ["Mc", "Moscovium", "Moscovi", "290", "unknown", 15, 7],
+            ["Lv", "Livermorium", "Livermori", "293", "unknown", 16, 7], ["Ts", "Tennessine", "Tennessine", "294", "unknown", 17, 7],
+            ["Og", "Oganesson", "Oganesson", "294", "noble-gas", 18, 7]
+        ];
+
+        // Populate elements 31 to 118
+        for (let i = 0; i < extraNames.length; i++) {
+            const zNum = 31 + i;
+            const item = extraNames[i];
+            fullElementsList.push({
+                z: zNum,
+                symbol: item[0],
+                nameEn: item[1],
+                nameVi: item[2],
+                mass: item[3],
+                category: item[4],
+                group: item[5],
+                period: item[6],
+                phase: zNum > 92 ? "Tổng hợp" : (item[0] === "Hg" || item[0] === "Br" ? "Lỏng" : "Rắn"),
+                config: `[Z=${zNum}]`,
+                electronegativity: "-",
+                radius: "-",
+                melt: "-",
+                boil: "-",
+                summary: `Nguyên tố hóa học có số hiệu nguyên tử ${zNum}.`,
+                app: "Ứng dụng trong nghiên cứu khoa học và tổng hợp nguyên tố mới."
+            });
+        }
+
+        let selectedElementForQR = null;
+        let qrModalInstance = null;
+
+        // Initialize App on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPeriodicTable(fullElementsList);
+            renderQRGallery(fullElementsList);
+            setupSearchAndFilter();
+            checkURLHashForModal();
+        });
+
+        // Check URL Hash to auto open element modal if linked directly
+        function checkURLHashForModal() {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#element-')) {
+                const zVal = parseInt(hash.replace('#element-', ''));
+                if (zVal >= 1 && zVal <= 118) {
+                    const el = fullElementsList.find(e => e.z === zVal);
+                    if (el) openModal(el);
+                }
+            }
+        }
+
+        // Render standard periodic grid
+        function renderPeriodicTable(data) {
+            const gridContainer = document.getElementById('periodic-table-grid');
+            const lanthContainer = document.getElementById('lanthanides-row');
+            const actinContainer = document.getElementById('actinides-row');
+
+            gridContainer.innerHTML = '';
+            lanthContainer.innerHTML = '';
+            actinContainer.innerHTML = '';
+
+            // Create a 7x18 matrix
+            const gridMatrix = Array(7).fill(null).map(() => Array(18).fill(null));
+
+            // Separate main elements, lanthanides (57-71) and actinides (89-103)
+            data.forEach(el => {
+                if (el.z >= 57 && el.z <= 71) {
+                    // Lanthanide row element
+                } else if (el.z >= 89 && el.z <= 103) {
+                    // Actinide row element
+                } else {
+                    const r = el.period - 1;
+                    const c = el.group - 1;
+                    if (r >= 0 && r < 7 && c >= 0 && c < 18) {
+                        gridMatrix[r][c] = el;
+                    }
+                }
+            });
+
+            // Render 7x18 Main Grid
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 18; c++) {
+                    const el = gridMatrix[r][c];
+
+                    // Placeholders for Lanthanide / Actinide inline slots in period 6 & 7 group 3
+                    if (r === 5 && c === 2) {
+                        gridContainer.appendChild(createPlaceholderCard("57-71", "La-Lu", "bg-purple-900/30 border-purple-500/40 text-purple-300"));
+                        continue;
+                    }
+                    if (r === 6 && c === 2) {
+                        gridContainer.appendChild(createPlaceholderCard("89-103", "Ac-Lr", "bg-pink-900/30 border-pink-500/40 text-pink-300"));
+                        continue;
+                    }
+
+                    if (el) {
+                        gridContainer.appendChild(createElementCard(el));
+                    } else {
+                        // Empty cell
+                        const emptyCell = document.createElement('div');
+                        emptyCell.className = "w-full aspect-[1/1.1]";
+                        gridContainer.appendChild(emptyCell);
+                    }
+                }
+            }
+
+            // Render Lanthanides Row (57-71)
+            data.filter(el => el.z >= 57 && el.z <= 71).forEach(el => {
+                lanthContainer.appendChild(createElementCard(el, true));
+            });
+
+            // Render Actinides Row (89-103)
+            data.filter(el => el.z >= 89 && el.z <= 103).forEach(el => {
+                actinContainer.appendChild(createElementCard(el, true));
+            });
+        }
+
+        // Helper to construct interactive element HTML card
+        function createElementCard(el, compact = false) {
+            const card = document.createElement('div');
+            const catInfo = CATEGORY_MAP[el.category] || CATEGORY_MAP['unknown'];
+            
+            card.className = `element-card rounded-lg border flex flex-col justify-between p-1 text-center shadow-sm ${catInfo.colorClass} ${catInfo.borderClass}`;
+            card.setAttribute('data-z', el.z);
+            card.setAttribute('data-symbol', el.symbol.toLowerCase());
+            card.setAttribute('data-name', el.nameVi.toLowerCase());
+            card.setAttribute('data-category', el.category);
+
+            card.onclick = () => openModal(el);
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start text-[8px] font-bold opacity-80 leading-none">
+                    <span>${el.z}</span>
+                    <span class="font-mono hidden sm:inline">${el.mass}</span>
+                </div>
+                <div class="my-auto">
+                    <div class="font-extrabold text-xs sm:text-sm tracking-tight text-white">${el.symbol}</div>
+                    <div class="text-[8px] font-medium truncate text-slate-200 hidden sm:block">${el.nameVi}</div>
+                </div>
+            `;
+            return card;
+        }
+
+        function createPlaceholderCard(num, text, styleClasses) {
+            const card = document.createElement('div');
+            card.className = `element-card rounded-lg border flex flex-col items-center justify-center p-1 text-center font-bold text-[9px] ${styleClasses}`;
+            card.innerHTML = `<div>${num}</div><div class="text-[8px] opacity-80">${text}</div>`;
+            return card;
+        }
+
+        // TAB SWITCHING LOGIC
+        function switchTab(tabName) {
+            const tableTab = document.getElementById('tab-table');
+            const qrTab = document.getElementById('tab-qr');
+            const tableBtn = document.getElementById('tab-table-btn');
+            const qrBtn = document.getElementById('tab-qr-btn');
+
+            if (tabName === 'table') {
+                tableTab.classList.remove('hidden');
+                qrTab.classList.add('hidden');
+                tableBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm";
+                qrBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all";
+            } else {
+                tableTab.classList.add('hidden');
+                qrTab.classList.remove('hidden');
+                qrBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm";
+                tableBtn.className = "px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all";
+            }
+        }
+
+        // SEARCH & FILTER FUNCTIONALITY
+        function setupSearchAndFilter() {
+            const searchInput = document.getElementById('search-input');
+            const qrSearchInput = document.getElementById('qr-search-input');
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                filterCards(query);
+            });
+
+            qrSearchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                filterQRGallery(query);
+            });
+        }
+
+        function filterCards(query) {
+            const cards = document.querySelectorAll('.element-card');
+            cards.forEach(card => {
+                const z = card.getAttribute('data-z');
+                const symbol = card.getAttribute('data-symbol');
+                const name = card.getAttribute('data-name');
+
+                if (!query || z.includes(query) || symbol.includes(query) || name.includes(query)) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                    card.style.pointerEvents = 'auto';
+                } else {
+                    card.style.opacity = '0.15';
+                    card.style.transform = 'scale(0.9)';
+                    card.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        function filterCategory(cat) {
+            // Update active filter button state
+            document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-indigo-400', 'active');
+            });
+            event.target.classList.add('ring-2', 'ring-indigo-400', 'active');
+
+            const cards = document.querySelectorAll('.element-card');
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                if (cat === 'all' || cardCat === cat) {
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                    card.style.pointerEvents = 'auto';
+                } else {
+                    card.style.opacity = '0.15';
+                    card.style.transform = 'scale(0.9)';
+                    card.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        // MODAL DETAIL & QR GENERATOR LOGIC
+        function openModal(el) {
+            selectedElementForQR = el;
+            const catInfo = CATEGORY_MAP[el.category] || CATEGORY_MAP['unknown'];
+
+            // Update basic text fields
+            document.getElementById('modal-z').innerText = el.z;
+            document.getElementById('modal-symbol').innerText = el.symbol;
+            document.getElementById('modal-en-name').innerText = el.nameEn;
+            document.getElementById('modal-mass').innerText = el.mass;
+            document.getElementById('modal-vi-name').innerText = el.nameVi;
+            document.getElementById('modal-category').innerText = catInfo.name;
+            document.getElementById('modal-phase').innerText = el.phase;
+            document.getElementById('modal-config').innerText = el.config;
+            document.getElementById('modal-group').innerText = el.group ? `${el.group}` : '-';
+            document.getElementById('modal-period').innerText = el.period;
+
+            document.getElementById('modal-electronegativity').innerText = el.electronegativity;
+            document.getElementById('modal-radius').innerText = el.radius !== '-' ? `${el.radius} pm` : '-';
+            document.getElementById('modal-melt').innerText = el.melt !== '-' ? `${el.melt} °C` : '-';
+            document.getElementById('modal-boil').innerText = el.boil !== '-' ? `${el.boil} °C` : '-';
+
+            document.getElementById('modal-summary').innerText = el.summary;
+            document.getElementById('modal-application').innerText = el.app;
+
+            // Style Symbol Box based on Category
+            const symBox = document.getElementById('modal-symbol-box');
+            symBox.className = `w-28 h-32 rounded-2xl border-2 flex flex-col justify-between p-3 text-center shrink-0 ${catInfo.colorClass} ${catInfo.borderClass}`;
+
+            // Generate Element Specific URL for QR Code
+            const elementURL = `${window.location.origin}${window.location.pathname}#element-${el.z}`;
+            document.getElementById('modal-qr-link-text').innerText = `#element-${el.z}`;
+
+            // Render QR Code inside Modal
+            const qrBox = document.getElementById('modal-qrcode-box');
+            qrBox.innerHTML = ''; // clear previous
+            qrModalInstance = new QRCode(qrBox, {
+                text: elementURL,
+                width: 120,
+                height: 120,
+                colorDark : "#0f172a",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            // Update URL hash without jumping page
+            history.replaceState(null, null, `#element-${el.z}`);
+
+            // Show Modal
+            const modal = document.getElementById('element-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('element-modal');
+            const content = document.getElementById('modal-content');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Single QR Download Handler
+        function downloadSingleQR() {
+            if (!selectedElementForQR) return;
+            const qrCanvas = document.querySelector('#modal-qrcode-box canvas');
+            if (!qrCanvas) return;
+
+            const imageURI = qrCanvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.download = `Mã_QR_Nguyên_Tố_${selectedElementForQR.z}_${selectedElementForQR.symbol}.png`;
+            link.href = imageURI;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // RENDER BULK 118 QR CODE GALLERY
+        function renderQRGallery(data) {
+            const gallery = document.getElementById('qr-gallery-grid');
+            gallery.innerHTML = '';
+
+            data.forEach(el => {
+                const catInfo = CATEGORY_MAP[el.category] || CATEGORY_MAP['unknown'];
+                const elementURL = `${window.location.origin}${window.location.pathname}#element-${el.z}`;
+
+                const card = document.createElement('div');
+                card.className = `qr-card-print bg-slate-800/60 border border-slate-700/80 rounded-2xl p-3 flex flex-col items-center justify-between text-center relative overflow-hidden transition hover:border-indigo-500`;
+                card.setAttribute('data-qr-search', `${el.z} ${el.symbol.toLowerCase()} ${el.nameVi.toLowerCase()}`);
+
+                const qrContainerId = `qr-thumb-${el.z}`;
+
+                card.innerHTML = `
+                    <div class="w-full flex justify-between items-center text-[10px] text-slate-400 mb-2 font-mono">
+                        <span class="font-bold text-indigo-400">Z = ${el.z}</span>
+                        <span>${el.mass}</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-xl font-extrabold text-white">${el.symbol}</span>
+                        <span class="text-xs text-slate-300 font-medium truncate max-w-[80px]">${el.nameVi}</span>
+                    </div>
+
+                    <!-- QR Box -->
+                    <div id="${qrContainerId}" class="bg-white p-2 rounded-xl flex items-center justify-center my-1 shadow-inner"></div>
+
+                    <div class="mt-3 w-full flex items-center justify-between gap-1 no-print">
+                        <button onclick="downloadBulkQRItem(${el.z}, '${el.symbol}')" class="flex-1 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] rounded-lg transition">
+                            <i class="fa-solid fa-download"></i> Tải PNG
+                        </button>
+                        <button onclick="openModalByZ(${el.z})" class="py-1 px-2.5 bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white text-[11px] rounded-lg transition">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                `;
+
+                gallery.appendChild(card);
+
+                // Asynchronously generate QR canvas for gallery performance
+                setTimeout(() => {
+                    new QRCode(document.getElementById(qrContainerId), {
+                        text: elementURL,
+                        width: 90,
+                        height: 90,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                }, 10);
+            });
+        }
+
+        function filterQRGallery(query) {
+            const qrCards = document.querySelectorAll('#qr-gallery-grid > div');
+            let visibleCount = 0;
+
+            qrCards.forEach(card => {
+                const searchStr = card.getAttribute('data-qr-search');
+                if (!query || searchStr.includes(query)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('qr-count-badge').innerText = `${visibleCount} / 118 Nguyên Tố`;
+        }
+
+        function openModalByZ(zVal) {
+            const el = fullElementsList.find(e => e.z === zVal);
+            if (el) openModal(el);
+        }
+
+        function downloadBulkQRItem(zVal, symbol) {
+            const container = document.getElementById(`qr-thumb-${zVal}`);
+            const canvas = container ? container.querySelector('canvas') : null;
+            if (!canvas) return;
+
+            const imageURI = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.download = `Mã_QR_Nguyên_Tố_${zVal}_${symbol}.png`;
+            link.href = imageURI;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Bulk Zip / Sequential Download trigger
+        function downloadAllQRCodes() {
+            alert('Đang tiến hành tải xuống tuần tự mã QR của 118 nguyên tố. Vui lòng cho phép trình duyệt tải nhiều file.');
+            let delay = 0;
+            fullElementsList.forEach((el) => {
+                setTimeout(() => {
+                    downloadBulkQRItem(el.z, el.symbol);
+                }, delay);
+                delay += 150; // stagger downloads
+            });
+        }
+    </script>
+</body>
+</html>
