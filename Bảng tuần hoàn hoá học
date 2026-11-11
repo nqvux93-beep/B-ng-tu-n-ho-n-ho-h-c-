@@ -1,0 +1,317 @@
+```html
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Tuần Hoàn Hóa Học 118 Nguyên Tố & Mã QR Interative</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'cat-reactive-nonmetal': '#2a9d8f',
+                        'cat-noble-gas': '#e76f51',
+                        'cat-alkali-metal': '#e63946',
+                        'cat-alkaline-earth': '#f4a261',
+                        'cat-metalloid': '#2a6f97',
+                        'cat-halogen': '#00b4d8',
+                        'cat-post-transition': '#48cae4',
+                        'cat-transition-metal': '#d4a373',
+                        'cat-lanthanide': '#9b5de5',
+                        'cat-actinide': '#f15bb5',
+                        'cat-unknown': '#6c757d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        /* Periodic Table Grid Layout */
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(0, 1fr));
+            gap: 4px;
+        }
+
+        .element-card {
+            aspect-ratio: 1 / 1.1;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+        }
+
+        .element-card:hover {
+            transform: scale(1.15);
+            z-index: 30;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Category background colors */
+        .bg-cat-reactive-nonmetal { background-color: rgba(42, 157, 143, 0.25); border-color: #2a9d8f; }
+        .bg-cat-noble-gas { background-color: rgba(231, 111, 81, 0.25); border-color: #e76f51; }
+        .bg-cat-alkali-metal { background-color: rgba(230, 57, 70, 0.25); border-color: #e63946; }
+        .bg-cat-alkaline-earth { background-color: rgba(244, 162, 97, 0.25); border-color: #f4a261; }
+        .bg-cat-metalloid { background-color: rgba(42, 111, 151, 0.25); border-color: #2a6f97; }
+        .bg-cat-halogen { background-color: rgba(0, 180, 216, 0.25); border-color: #00b4d8; }
+        .bg-cat-post-transition { background-color: rgba(72, 202, 228, 0.25); border-color: #48cae4; }
+        .bg-cat-transition-metal { background-color: rgba(212, 163, 115, 0.25); border-color: #d4a373; }
+        .bg-cat-lanthanide { background-color: rgba(155, 93, 229, 0.25); border-color: #9b5de5; }
+        .bg-cat-actinide { background-color: rgba(241, 91, 181, 0.25); border-color: #f15bb5; }
+        .bg-cat-unknown { background-color: rgba(108, 117, 125, 0.25); border-color: #6c757d; }
+
+        .border-cat-reactive-nonmetal { border-color: #2a9d8f; }
+        .border-cat-noble-gas { border-color: #e76f51; }
+        .border-cat-alkali-metal { border-color: #e63946; }
+        .border-cat-alkaline-earth { border-color: #f4a261; }
+        .border-cat-metalloid { border-color: #2a6f97; }
+        .border-cat-halogen { border-color: #00b4d8; }
+        .border-cat-post-transition { border-color: #48cae4; }
+        .border-cat-transition-metal { border-color: #d4a373; }
+        .border-cat-lanthanide { border-color: #9b5de5; }
+        .border-cat-actinide { border-color: #f15bb5; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white !important; color: black !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .qr-card-print { page-break-inside: avoid; break-inside: avoid; border: 1px solid #ccc !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between bg-slate-900 text-slate-100">
+
+    <!-- Header Navigation -->
+    <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-indigo-600 rounded-lg text-white font-bold text-xl">
+                    <i class="fa-solid fa-atom"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-white">Bảng Tuần Hoàn Hóa Học 118 Nguyên Tố</h1>
+                    <p class="text-xs text-slate-400">Tích hợp Trình tạo & Xuất mã QR thông minh</p>
+                </div>
+            </div>
+
+            <!-- Tab Selector -->
+            <div class="flex bg-slate-900/60 p-1 rounded-xl border border-slate-700">
+                <button id="tab-table-btn" onclick="switchTab('table')" class="px-4 py-1.5 rounded-lg text-sm font-medium transition-all bg-indigo-600 text-white shadow-sm">
+                    <i class="fa-solid fa-table-cells mr-1.5"></i> Bảng Tuần Hoàn
+                </button>
+                <button id="tab-qr-btn" onclick="switchTab('qr')" class="px-4 py-1.5 rounded-lg text-sm font-medium text-slate-400 hover:text-white transition-all">
+                    <i class="fa-solid fa-qrcode mr-1.5"></i> Quản lý 118 Mã QR
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- TAB 1: INTERACTIVE PERIODIC TABLE -->
+        <section id="tab-table" class="space-y-6">
+            
+            <!-- Filter & Search Controls -->
+            <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60 flex flex-col md:flex-row gap-4 items-center justify-between">
+                
+                <!-- Search Box -->
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="search-input" placeholder="Tìm theo tên, ký hiệu, số Z..." 
+                        class="w-full pl-10 pr-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500">
+                </div>
+
+                <!-- Group Filters -->
+                <div class="flex flex-wrap gap-1.5 items-center justify-center md:justify-end text-xs">
+                    <button onclick="filterCategory('all')" class="cat-filter-btn active bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded-lg border border-slate-600 font-medium transition">Tất cả</button>
+                    <button onclick="filterCategory('alkali-metal')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-red-400 border border-red-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Kim loại kiềm</button>
+                    <button onclick="filterCategory('alkaline-earth')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-orange-400 border border-orange-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Kiềm thổ</button>
+                    <button onclick="filterCategory('transition-metal')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Chuyển tiếp</button>
+                    <button onclick="filterCategory('metalloid')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-sky-400 border border-sky-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Á kim</button>
+                    <button onclick="filterCategory('reactive-nonmetal')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Phi kim</button>
+                    <button onclick="filterCategory('halogen')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Halogen</button>
+                    <button onclick="filterCategory('noble-gas')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-rose-400 border border-rose-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Khí hiếm</button>
+                    <button onclick="filterCategory('lanthanide')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-purple-400 border border-purple-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Họ Lanthan</button>
+                    <button onclick="filterCategory('actinide')" class="cat-filter-btn bg-slate-800 hover:bg-slate-700 text-pink-400 border border-pink-500/30 px-2.5 py-1.5 rounded-lg font-medium transition">Họ Actin</button>
+                </div>
+            </div>
+
+            <!-- Periodic Table Display Wrapper -->
+            <div class="overflow-x-auto pb-4">
+                <div class="min-w-[1000px]">
+                    <!-- Main Periodic Grid -->
+                    <div id="periodic-table-grid" class="periodic-table mb-4">
+                        <!-- Standard 1-7 periods dynamically inserted here -->
+                    </div>
+
+                    <!-- Lanthanides & Actinides Separate Blocks -->
+                    <div class="mt-6 pl-[11.11%] space-y-1">
+                        <div class="flex items-center mb-1">
+                            <span class="text-xs text-purple-400 font-semibold w-24">Họ Lanthan (*):</span>
+                            <div id="lanthanides-row" class="grid grid-cols-15 gap-1 flex-1"></div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-xs text-pink-400 font-semibold w-24">Họ Actin (**):</span>
+                            <div id="actinides-row" class="grid grid-cols-15 gap-1 flex-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend Section -->
+            <div class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Chú thích phân loại nhóm nguyên tố</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-2 text-xs">
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-alkali-metal border border-red-500 inline-block"></span>Kim loại kiềm</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-alkaline-earth border border-orange-500 inline-block"></span>Kim loại kiềm thổ</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-transition-metal border border-amber-500 inline-block"></span>Kim loại chuyển tiếp</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-post-transition border border-teal-500 inline-block"></span>Kim loại yếu</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-metalloid border border-sky-500 inline-block"></span>Á kim</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-reactive-nonmetal border border-emerald-500 inline-block"></span>Phi kim đa nguyên tử</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-halogen border border-cyan-500 inline-block"></span>Halogen</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-noble-gas border border-rose-500 inline-block"></span>Khí hiếm</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-lanthanide border border-purple-500 inline-block"></span>Họ Lanthan</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-actinide border border-pink-500 inline-block"></span>Họ Actin</div>
+                    <div class="flex items-center gap-2"><span class="w-3.5 h-3.5 rounded bg-cat-unknown border border-slate-500 inline-block"></span>Tổng hợp / Chưa rõ</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: BULK QR CODE MANAGER & EXPORT -->
+        <section id="tab-qr" class="hidden space-y-6">
+            
+            <!-- Controls Bar -->
+            <div class="bg-slate-800/60 rounded-2xl p-4 border border-slate-700/60 flex flex-col md:flex-row gap-4 justify-between items-center no-print">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <input type="text" id="qr-search-input" placeholder="Tìm mã QR theo tên hoặc ký hiệu..." 
+                        class="px-4 py-2 bg-slate-900/80 border border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-100 placeholder-slate-500 w-full md:w-72">
+                    <span id="qr-count-badge" class="text-xs bg-indigo-900/60 border border-indigo-700 text-indigo-300 font-medium px-3 py-1.5 rounded-xl whitespace-nowrap">
+                        118 / 118 Nguyên Tố
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button onclick="window.print()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium rounded-xl transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> In Bộ Thẻ QR
+                    </button>
+                    <button onclick="downloadAllQRCodes()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                        <i class="fa-solid fa-file-arrow-down"></i> Tải Tất Cả 118 Mã QR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Print Header Banner (Only visible in Print Mode) -->
+            <div class="hidden print-only text-center mb-6 border-b pb-4">
+                <h1 class="text-2xl font-bold text-black">BỘ MÃ QR 118 NGUYÊN TỐ HÓA HỌC</h1>
+                <p class="text-sm text-gray-600">Quét mã để truy cập chi tiết thông tin hóa học & ứng dụng thực tế</p>
+            </div>
+
+            <!-- QR Grid Grid -->
+            <div id="qr-gallery-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- QR Cards generated dynamically -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800/40 border-t border-slate-800 py-4 mt-8 no-print">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            Ứng dụng Bảng tuần hoàn Hóa học tương tác 118 Nguyên Tố & Mã QR • Hỗ trợ học tập và nghiên cứu Hóa học.
+        </div>
+    </footer>
+
+    <!-- ELEMENT DETAIL MODAL WITH QR CODE GENERATOR -->
+    <div id="element-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative my-8 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+            
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-4 right-4 w-9 h-9 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <!-- Modal Header -->
+            <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start border-b border-slate-800 pb-6">
+                <!-- Large Symbol Box -->
+                <div id="modal-symbol-box" class="w-28 h-32 rounded-2xl border-2 flex flex-col justify-between p-3 text-center bg-slate-800/50 shrink-0">
+                    <span id="modal-z" class="text-left font-bold text-xs opacity-80">1</span>
+                    <div>
+                        <div id="modal-symbol" class="text-4xl font-extrabold tracking-tight">H</div>
+                        <div id="modal-en-name" class="text-[10px] font-medium opacity-80 truncate">Hydrogen</div>
+                    </div>
+                    <span id="modal-mass" class="text-right text-[11px] font-mono opacity-80">1.008</span>
+                </div>
+
+                <!-- Title & Basic Quick Stats -->
+                <div class="flex-grow text-center sm:text-left">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+                        <span id="modal-category" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Phi kim</span>
+                        <span id="modal-phase" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300">Khí</span>
+                    </div>
+                    <h2 id="modal-vi-name" class="text-2xl font-bold text-white mb-1">Hiđrô</h2>
+                    <p id="modal-config" class="text-xs font-mono text-indigo-400 mb-3">1s¹</p>
+
+                    <!-- Group & Period Badges -->
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 block text-[10px]">Nhóm</span>
+                            <span id="modal-group" class="font-bold text-slate-200">1 (IA)</span>
+                        </div>
+                        <div class="bg-slate-800/60 p-2 rounded-xl border border-slate-800">
+                            <span class="text-slate-400 block text-[10px]">Chu kỳ</span>
+                            <span id="modal-period" class="font-bold text-slate-200">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Grid: Details & QR Code -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                
+                <!-- Left 2 Columns: Properties & Applications -->
+                <div class="md:col-span-2 space-y-4 text-xs">
+                    
+                    <!-- Physical Properties -->
+                    <div class="bg-slate-800/40 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                        <h4 class="font-bold text-slate-300 text-xs flex items-center gap-2">
+                            <i class="fa-solid fa-flask text-indigo-400"></i> Thông số Lý - Hóa
+                        </h4>
+                        <div class="grid grid-cols-2
